@@ -17,9 +17,14 @@
 
 class DSpotify {
 private:
-    //
-    // Here you may add anything you want
-    //
+    // עץ AVL המאחסן את כל השירים, ממוין לפי מזהה
+    AVLTree<Song*> songs;
+    // עץ AVL המאחסן את כל הפלייליסטים, ממוין לפי מזהה
+    AVLTree<Playlist*> playlists;
+    
+    // פונקציות עזר פרטיות
+    Song* findSong(int songId) const;
+    Playlist* findPlaylist(int playlistId) const;
     
 public:
     // <DO-NOT-MODIFY> {
