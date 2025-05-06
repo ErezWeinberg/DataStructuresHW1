@@ -21,37 +21,24 @@ private:
     AVLTree<Song*> songs;
     // עץ AVL המאחסן את כל הפלייליסטים, ממוין לפי מזהה
     AVLTree<Playlist*> playlists;
-    
     // פונקציות עזר פרטיות
     Song* findSong(int songId) const;
     Playlist* findPlaylist(int playlistId) const;
     
 public:
-    // <DO-NOT-MODIFY> {
+    // <DO-NOT-MODIFY!!!!!!> {
     DSpotify();
-
     virtual ~DSpotify();
-
     StatusType add_playlist(int playlistId);
-
     StatusType delete_playlist(int playlistId);
-
     StatusType add_song(int songId, int plays);
-
     StatusType add_to_playlist(int playlistId, int songId);
-
     StatusType delete_song(int songId);
-
     StatusType remove_from_playlist(int playlistId, int songId);
-
     output_t<int> get_plays(int songId);
-
     output_t<int> get_num_songs(int playlistId);
-
     output_t<int> get_by_plays(int playlistId, int plays);
-
     StatusType unite_playlists(int playlistId1, int playlistId2);
-    // } </DO-NOT-MODIFY>
+    // } </DO-NOT-MODIFY!!!!!!!>
 };
-
 #endif // DSPOTIFY25SPRING_WET1_H_
