@@ -232,7 +232,29 @@ output_t<int> DSpotify::get_plays(int songId) {
     // החזרת מספר ההשמעות
     return output_t<int>(song->getPlays());
 }
+output_t<int> DSpotify::get_by_plays(int playlistId, int plays) {
+    // Complexity: O(log m + log nplaylistId)
 
+    // Input validation
+    if (playlistId <= 0 || plays < 0) {
+        return output_t<int>(StatusType::INVALID_INPUT);
+    }
+
+    // Search for playlist
+    Playlist* playlist = findPlaylist(playlistId);
+    if (!playlist) {
+        return output_t<int>(StatusType::FAILURE);
+    }
+
+    // Find song with closest plays
+    Song* song = playlist->getSongWithClosestPlays(plays);
+    if (!song) {
+        return output_t<int>(StatusType::FAILURE);
+    }
+
+    // Return song ID
+    return output_t<int>(song->getId());
+}
 
 // Returns the number of songs in the specified playlist.
 // Complexity: O(log m)
@@ -249,35 +271,25 @@ output_t<int> DSpotify::get_num_songs(int playlistId) {
     if (!playlist) {
         return output_t<int>(StatusType::FAILURE);
     int songCount = playlist->getSongCount();
-    return output_t<int>(songCount);
     
     // החזרת מספר השירים
     return output_t<int>(playlist->getSongCount());
 }
+    output_t<int> DSpotify::get_num_songs(int playlistId) {
+        // Input validation
+        if (playlistId <= 0) {
+            return output_t<int>(StatusType::INVALID_INPUT);
+        }
 
-output_t<int> DSpotify::get_by_plays(int playlistId, int plays) {
-    // סיבוכיות: O(log m + log nplaylistId)
-    
-    // בדיקת תקינות הקלט
-    if (playlistId <= 0 || plays < 0) {
-        return output_t<int>(StatusType::INVALID_INPUT);
+        // Search for playlist
+        Playlist* playlist = findPlaylist(playlistId);
+        if (!playlist) {
+            return output_t<int>(StatusType::FAILURE);
+        }
+
+        // Return song count
+        return output_t<int>(playlist->getSongCount());
     }
-    
-    // חיפוש הפלייליסט
-    Playlist* playlist = findPlaylist(playlistId);
-    if (!playlist) {
-        return output_t<int>(StatusType::FAILURE);
-    }
-    
-    // חיפוש השיר עם מספר ההשמעות הקרוב
-    Song* song = playlist->getSongByPlays(plays);
-    if (!song) {
-        return output_t<int>(StatusType::FAILURE);
-    }
-    
-    // החזרת מזהה השיר
-    return output_t<int>(song->getId());
-}
 
 StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2) {
     // סיבוכיות: O(n + m)

@@ -1,0 +1,3 @@
+C:/Users/Biosense/Documents/Technion/DS/Data-structures-Wet_01/DataStructuresHW1/cmake-build-debug/CMakeFiles/DataStructuresHW1.dir
+C:/Users/Biosense/Documents/Technion/DS/Data-structures-Wet_01/DataStructuresHW1/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Biosense/Documents/Technion/DS/Data-structures-Wet_01/DataStructuresHW1/cmake-build-debug/CMakeFiles/rebuild_cache.dir

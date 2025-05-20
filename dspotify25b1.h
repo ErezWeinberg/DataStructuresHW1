@@ -24,7 +24,7 @@ private:
     // פונקציות עזר פרטיות
     Song* findSong(int songId) const;
     Playlist* findPlaylist(int playlistId) const;
-    
+    StatusType add_plays(int songId, int additionalPlays);
 public:
     // <DO-NOT-MODIFY!!!!!!> {
     DSpotify();

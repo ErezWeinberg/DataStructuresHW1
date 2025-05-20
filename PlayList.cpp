@@ -52,6 +52,47 @@ int Playlist::getId() const {
 int Playlist::getSongCount() const {
     return songsById.getSize();
 }
+StatusType DSpotify::add_plays(int songId, int additionalPlays) {
+    // Input validation
+    if (songId <= 0 || additionalPlays < 0) {
+        return StatusType::INVALID_INPUT;
+    }
+
+    // Find the song
+    Song* song = findSong(songId);
+    if (!song) {
+        return StatusType::FAILURE;
+    }
+
+    try {
+        // Get current plays
+        int currentPlays = song->getPlays();
+
+        // Update song plays count
+        // We need to remove and reinsert in songsByPlays trees to maintain correct ordering
+        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+            Playlist* playlist = *it;
+            if (song->isInPlaylist(playlist->getId())) {
+                playlist->songsByPlays.remove(song);
+            }
+        }
+
+        // Update the plays count
+        song->setPlays(currentPlays + additionalPlays);
+
+        // Reinsert into songsByPlays trees
+        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+            Playlist* playlist = *it;
+            if (song->isInPlaylist(playlist->getId())) {
+                playlist->songsByPlays.insert(song);
+            }
+        }
+
+        return StatusType::SUCCESS;
+    } catch (std::bad_alloc&) {
+        return StatusType::ALLOCATION_ERROR;
+    }
+}
 
 StatusType Playlist::addSong(Song* song) {
     try {
@@ -72,10 +113,10 @@ StatusType Playlist::addSong(Song* song) {
 StatusType Playlist::removeSong(int songId) {
     try {
         Song dummy(songId, 0);
-        Song* song = songsById.find(song);
+        Song* song = *songsById.find(dummy);
         if (song) {
-            songsById.remove(*song);
-            songsByPlays.remove(*song);
+            songsById.remove(song);
+            songsByPlays.remove(song);
             return StatusType::SUCCESS;
         }
         return StatusType::FAILURE;
@@ -124,4 +165,8 @@ bool Playlist::operator<(const Playlist& other) const {
 
 bool Playlist::operator==(const Playlist& other) const {
     return id == other.id;
+}
+
+bool Playlist::IdCompare::operator()(const Playlist* p1, const Playlist* p2) const {
+    return p1->getId() < p2->getId();
 }
