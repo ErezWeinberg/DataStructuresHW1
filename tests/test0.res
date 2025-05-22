@@ -1,0 +1,11 @@
+add_playlist: SUCCESS
+get_num_songs: FAILURE
+add_song: SUCCESS
+add_to_playlist: FAILURE
+get_num_songs: FAILURE
+remove_from_playlist: FAILURE
+get_num_songs: FAILURE
+add_to_playlist: FAILURE
+remove_from_playlist: FAILURE
+add_to_playlist: FAILURE
+add_song: SUCCESS
