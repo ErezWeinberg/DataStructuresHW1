@@ -1,8 +1,4 @@
-// You can edit anything you want in this file.
-// However you need to implement all public DSpotify function, as provided below as a template
-
-#include "./dspotify25b1.h" // Adjust the path if the header file is in a different directory
-
+#include "./dspotify25b1.h"
 
 DSpotify::DSpotify() {
     // האתחול פשוט - יצירת מבני נתונים ריקים
@@ -14,15 +10,16 @@ DSpotify::~DSpotify() {
     // סיבוכיות: O(n*m) במקרה הגרוע
     
     // משחרר את כל השירים
-    for (AVLTree<Song*>::Iterator it = songs.begin(); it != songs.end(); ++it) {
+    for (AVLTree<Song*, Song::IdCompare>::Iterator it = songs.begin(); it != songs.end(); ++it) {
         delete *it;
     }
     
     // משחרר את כל הפלייליסטים
-    for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+    for (AVLTree<Playlist*, Playlist::IdCompare>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
         delete *it;
     }
 }
+
 StatusType DSpotify::add_playlist(int playlistId) {
     // Input validation
     if (playlistId <= 0) {
@@ -46,6 +43,7 @@ StatusType DSpotify::add_playlist(int playlistId) {
         return StatusType::ALLOCATION_ERROR;
     }
 }
+
 StatusType DSpotify::add_plays(int songId, int additionalPlays) {
     // Input validation
     if (songId <= 0 || additionalPlays < 0) {
@@ -64,7 +62,7 @@ StatusType DSpotify::add_plays(int songId, int additionalPlays) {
 
         // Update song plays count
         // We need to remove and reinsert in songsByPlays trees to maintain correct ordering
-        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+        for (AVLTree<Playlist*, Playlist::IdCompare>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
             Playlist* playlist = *it;
             if (song->isInPlaylist(playlist->getId())) {
                 // Note: You'll need to add a public method to access songsByPlays
@@ -78,7 +76,7 @@ StatusType DSpotify::add_plays(int songId, int additionalPlays) {
         song->setPlays(currentPlays + additionalPlays);
 
         // Reinsert into songsByPlays trees
-        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+        for (AVLTree<Playlist*, Playlist::IdCompare>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
             Playlist* playlist = *it;
             if (song->isInPlaylist(playlist->getId())) {
                 // playlist->songsByPlays.insert(song);
@@ -101,9 +99,6 @@ StatusType DSpotify::delete_playlist(int playlistId) {
     
     // חיפוש הפלייליסט
     Playlist* playlist = findPlaylist(playlistId);
-    if (!playlist) {
-        return StatusType::FAILURE;
-    }
     if (!playlist) {
         return StatusType::FAILURE;
     }
@@ -272,6 +267,7 @@ output_t<int> DSpotify::get_plays(int songId) {
     // החזרת מספר ההשמעות
     return output_t<int>(song->getPlays());
 }
+
 output_t<int> DSpotify::get_by_plays(int playlistId, int plays) {
     // Complexity: O(log m + log nplaylistId)
 
@@ -296,26 +292,23 @@ output_t<int> DSpotify::get_by_plays(int playlistId, int plays) {
     return output_t<int>(song->getId());
 }
 
-// Returns the number of songs in the specified playlist.
-// Complexity: O(log m)
-
-    output_t<int> DSpotify::get_num_songs(int playlistId){
-        // Input validation
-        if (playlistId <= 0) {
-            return output_t<int>(StatusType::INVALID_INPUT);
-        }
-
-        // Search for playlist
-        Playlist* playlist = findPlaylist(playlistId);
-        if (!playlist) {
-            return output_t<int>(StatusType::FAILURE);
-        }
-
-        // Return song count
-        return output_t<int>(playlist->getSongCount());
+output_t<int> DSpotify::get_num_songs(int playlistId) {
+    // Input validation
+    if (playlistId <= 0) {
+        return output_t<int>(StatusType::INVALID_INPUT);
     }
 
-StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2){
+    // Search for playlist
+    Playlist* playlist = findPlaylist(playlistId);
+    if (!playlist) {
+        return output_t<int>(StatusType::FAILURE);
+    }
+
+    // Return song count
+    return output_t<int>(playlist->getSongCount());
+}
+
+StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2) {
     // סיבוכיות: O(n + m)
     
     // בדיקת תקינות הקלט

@@ -48,15 +48,21 @@ bool Playlist::containsSong(int songId) const {
 }
 
 Song* Playlist::getSongWithClosestPlays(int plays) const {
-    // יצירת שיר דמה לחיפוש
-    Song* dummySong = new Song(0, plays);
-    
+    // Check if playlist is empty
+    if (songsByPlays.isEmpty()) {
+        return nullptr;
+    }
+
+    // We need to find the song with smallest plays >= target plays
+    // Since we can't easily create a perfect dummy song for comparison,
+    // let's use a different approach - iterate through the tree
+
+    // For now, create a dummy song with a very high ID to avoid tiebreaker issues
+    Song dummySong(999999999, plays);
+
     // חיפוש השיר הקרוב ביותר ב-plays
-    Song** resultPtr = songsByPlays.findClosest(dummySong);
-    Song* result = resultPtr ? *resultPtr : nullptr;
-    
-    delete dummySong;
-    return result;
+    Song** resultPtr = songsByPlays.findClosest(&dummySong);
+    return resultPtr ? *resultPtr : nullptr;
 }
 
 StatusType Playlist::mergePlaylists(Playlist* other) {

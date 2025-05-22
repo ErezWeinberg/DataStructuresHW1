@@ -21,9 +21,9 @@
 class DSpotify {
 private:
     // עץ AVL המאחסן את כל השירים, ממוין לפי מזהה
-    AVLTree<Song*> songs;
+    AVLTree<Song*, Song::IdCompare> songs;
     // עץ AVL המאחסן את כל הפלייליסטים, ממוין לפי מזהה
-    AVLTree<Playlist*> playlists;
+    AVLTree<Playlist*, Playlist::IdCompare> playlists;
     // פונקציות עזר פרטיות
     Song* findSong(int songId) const;
     Playlist* findPlaylist(int playlistId) const;

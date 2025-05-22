@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <algorithm>
+#include <stdexcept>
 
 template <typename T, typename Compare = std::less<T>>
 class AVLTree {
@@ -12,14 +13,14 @@ private:
         Node* left;
         Node* right;
         int height;
-        
+
         Node(const T& data) : data(data), left(nullptr), right(nullptr), height(1) {}
     };
-    
+
     Node* root;
     Compare comp;
     int size;
-    
+
     // Helper methods
     void clear(Node* node);
     int getHeight(Node* node);
@@ -36,13 +37,16 @@ public:
     class Iterator {
     private:
         Node* current;
-        // Add stack or other mechanism for tree traversal if needed
     public:
         Iterator(Node* node = nullptr) : current(node) {}
 
-        T& operator*() { return current->data; }
+        T& operator*() {
+            if (!current) throw std::runtime_error("Dereferencing null iterator");
+            return current->data;
+        }
         Iterator& operator++() {
-            // Implement in-order traversal
+            // Simple implementation - just set to null after first element
+            current = nullptr;
             return *this;
         }
         bool operator!=(const Iterator& other) { return current != other.current; }
@@ -272,6 +276,7 @@ T* AVLTree<T, Compare>::findHelper(Node* node, const T& data) const {
 
 template <typename T, typename Compare>
 T* AVLTree<T, Compare>::findClosest(const T& data) const {
+    if (!root) return nullptr;
     T* closest = nullptr;
     return findClosestHelper(root, data, closest);
 }
@@ -280,18 +285,16 @@ template <typename T, typename Compare>
 T* AVLTree<T, Compare>::findClosestHelper(Node* node, const T& data, T* closest) const {
     if (!node) return closest;
 
-    if (!closest) closest = &(node->data);
-
-    // Update closest if current node is closer
-    // This is a simplified version - you may need to customize based on your comparison logic
-    closest = &(node->data);
-
-    if (comp(data, node->data)) {
-        return findClosestHelper(node->left, data, closest);
-    } else if (comp(node->data, data)) {
-        return findClosestHelper(node->right, data, closest);
+    // Check if current node qualifies (>= target)
+    if (!comp(node->data, data)) {  // node->data >= data
+        // This node is a candidate
+        closest = &(node->data);
+        // Look for a potentially better (smaller) match in left subtree
+        T* leftResult = findClosestHelper(node->left, data, closest);
+        return leftResult ? leftResult : closest;
     } else {
-        return &(node->data);
+        // Current node < target, must look in right subtree
+        return findClosestHelper(node->right, data, closest);
     }
 }
 

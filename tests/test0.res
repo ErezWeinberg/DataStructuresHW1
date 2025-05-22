@@ -1,11 +1,11 @@
 add_playlist: SUCCESS
-get_num_songs: FAILURE
+get_num_songs: SUCCESS, 0
 add_song: SUCCESS
-add_to_playlist: FAILURE
-get_num_songs: FAILURE
-remove_from_playlist: FAILURE
-get_num_songs: FAILURE
-add_to_playlist: FAILURE
-remove_from_playlist: FAILURE
-add_to_playlist: FAILURE
+add_to_playlist: SUCCESS
+get_num_songs: SUCCESS, 1
+remove_from_playlist: SUCCESS
+get_num_songs: SUCCESS, 0
+add_to_playlist: SUCCESS
+remove_from_playlist: SUCCESS
+add_to_playlist: SUCCESS
 add_song: SUCCESS
