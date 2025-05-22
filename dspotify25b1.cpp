@@ -90,25 +90,23 @@ StatusType DSpotify::add_plays(int songId, int additionalPlays) {
 }
 
 StatusType DSpotify::delete_playlist(int playlistId) {
-    // סיבוכיות: O(log m)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (playlistId <= 0) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // חיפוש הפלייליסט
+
+    // Find the playlist
     Playlist* playlist = findPlaylist(playlistId);
     if (!playlist) {
         return StatusType::FAILURE;
     }
-    
-    // בדיקה שהפלייליסט ריק
+
+    // Check if playlist is empty
     if (playlist->getSongCount() > 0) {
         return StatusType::FAILURE;
     }
-    
-    // מחיקת הפלייליסט
+
+    // Remove and delete the playlist
     try {
         bool success = playlists.remove(playlist);
         if (success) {
@@ -150,28 +148,26 @@ StatusType DSpotify::add_song(int songId, int plays) {
 }
 
 StatusType DSpotify::add_to_playlist(int playlistId, int songId) {
-    // סיבוכיות: O(log n + log m)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (playlistId <= 0 || songId <= 0) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // חיפוש השיר והפלייליסט
+
+    // Find song and playlist
     Song* song = findSong(songId);
     Playlist* playlist = findPlaylist(playlistId);
-    
-    // בדיקה שהשיר והפלייליסט קיימים
+
+    // Check if both exist
     if (!song || !playlist) {
         return StatusType::FAILURE;
     }
-    
-    // בדיקה שהשיר לא נמצא כבר בפלייליסט
+
+    // Check if song is already in this playlist
     if (playlist->containsSong(songId)) {
         return StatusType::FAILURE;
     }
-    
-    // הוספת השיר לפלייליסט
+
+    // Add song to playlist
     try {
         StatusType result = playlist->addSong(song);
         if (result == StatusType::SUCCESS) {
@@ -184,25 +180,23 @@ StatusType DSpotify::add_to_playlist(int playlistId, int songId) {
 }
 
 StatusType DSpotify::delete_song(int songId) {
-    // סיבוכיות: O(log n)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (songId <= 0) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // חיפוש השיר
+
+    // Find the song
     Song* song = findSong(songId);
     if (!song) {
         return StatusType::FAILURE;
     }
-    
-    // בדיקה שהשיר לא נמצא בפלייליסט כלשהו
+
+    // Check if song is in any playlist
     if (song->isInAnyPlaylist()) {
         return StatusType::FAILURE;
     }
-    
-    // מחיקת השיר
+
+    // Remove and delete the song
     try {
         bool success = songs.remove(song);
         if (success) {
@@ -217,28 +211,26 @@ StatusType DSpotify::delete_song(int songId) {
 }
 
 StatusType DSpotify::remove_from_playlist(int playlistId, int songId) {
-    // סיבוכיות: O(log m + log nplaylistId)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (playlistId <= 0 || songId <= 0) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // חיפוש השיר והפלייליסט
+
+    // Find song and playlist
     Song* song = findSong(songId);
     Playlist* playlist = findPlaylist(playlistId);
-    
-    // בדיקה שהשיר והפלייליסט קיימים
+
+    // Check if both exist
     if (!song || !playlist) {
         return StatusType::FAILURE;
     }
-    
-    // בדיקה שהשיר נמצא בפלייליסט
+
+    // Check if song is actually in this playlist
     if (!playlist->containsSong(songId)) {
         return StatusType::FAILURE;
     }
-    
-    // הסרת השיר מהפלייליסט
+
+    // Remove song from playlist
     try {
         StatusType result = playlist->removeSong(songId);
         if (result == StatusType::SUCCESS) {
@@ -309,27 +301,25 @@ output_t<int> DSpotify::get_num_songs(int playlistId) {
 }
 
 StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2) {
-    // סיבוכיות: O(n + m)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (playlistId1 <= 0 || playlistId2 <= 0 || playlistId1 == playlistId2) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // חיפוש הפלייליסטים
+
+    // Find both playlists
     Playlist* playlist1 = findPlaylist(playlistId1);
     Playlist* playlist2 = findPlaylist(playlistId2);
-    
-    // בדיקה שהפלייליסטים קיימים
+
+    // Check if both exist
     if (!playlist1 || !playlist2) {
         return StatusType::FAILURE;
     }
-    
-    // מיזוג הפלייליסטים
+
+    // Merge playlist2 into playlist1
     try {
         StatusType result = playlist1->mergePlaylists(playlist2);
         if (result == StatusType::SUCCESS) {
-            // מחיקת הפלייליסט השני
+            // Remove and delete playlist2
             playlists.remove(playlist2);
             delete playlist2;
         }

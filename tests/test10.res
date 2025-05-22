@@ -160,7 +160,7 @@ delete_song: SUCCESS
 get_num_songs: SUCCESS, 2
 add_song: SUCCESS
 add_to_playlist: SUCCESS
-get_num_songs: SUCCESS, 9
+get_num_songs: SUCCESS, 10
 get_by_plays: SUCCESS, 934670
 get_by_plays: SUCCESS, 291191
 add_playlist: SUCCESS

@@ -1,4 +1,5 @@
 #include "PlayList.h"
+#include <vector>
 
 Playlist::Playlist(int id) : id(id) {}
 
@@ -53,25 +54,40 @@ Song* Playlist::getSongWithClosestPlays(int plays) const {
         return nullptr;
     }
 
-    // We need to find the song with smallest plays >= target plays
-    // Since we can't easily create a perfect dummy song for comparison,
-    // let's use a different approach - iterate through the tree
+    // Create a dummy song with plays and ID = 0 for comparison
+    // This ensures we find the song with >= plays and smallest ID in case of ties
+    Song dummySong(0, plays);
 
-    // For now, create a dummy song with a very high ID to avoid tiebreaker issues
-    Song dummySong(999999999, plays);
-
-    // חיפוש השיר הקרוב ביותר ב-plays
+    // Find the closest song with plays >= target plays
     Song** resultPtr = songsByPlays.findClosest(&dummySong);
     return resultPtr ? *resultPtr : nullptr;
 }
 
 StatusType Playlist::mergePlaylists(Playlist* other) {
     try {
-        // For now, let's implement a simple version without inOrder traversal
-        // You'll need to implement a proper iterator or traversal method in your AVLTree
-        
-        // This is a placeholder - you'll need to implement proper tree traversal
-        // based on your AVLTree implementation
+        // Get all songs from the other playlist
+        std::vector<Song*> otherSongs;
+        other->songsById.getAllElements(otherSongs);
+
+        // Add each song from other playlist to this playlist
+        for (Song* song : otherSongs) {
+            // Only add if not already in this playlist
+            if (!this->containsSong(song->getId())) {
+                // Add to both trees in this playlist
+                if (!songsById.insert(song)) {
+                    return StatusType::FAILURE;
+                }
+                if (!songsByPlays.insert(song)) {
+                    // Rollback the first insertion
+                    songsById.remove(song);
+                    return StatusType::FAILURE;
+                }
+                // Update song's playlist membership
+                song->addToPlaylist(this->getId());
+            }
+            // Remove song from other playlist's membership
+            song->removeFromPlaylist(other->getId());
+        }
         
         return StatusType::SUCCESS;
     } catch (std::bad_alloc&) {

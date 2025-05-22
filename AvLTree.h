@@ -4,6 +4,7 @@
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
+#include <vector>
 
 template <typename T, typename Compare = std::less<T>>
 class AVLTree {
@@ -32,6 +33,7 @@ private:
     Node* findMin(Node* node);
     T* findHelper(Node* node, const T& data) const;
     T* findClosestHelper(Node* node, const T& data, T* closest) const;
+    void getAllElementsHelper(Node* node, std::vector<T>& elements) const;
 
 public:
     class Iterator {
@@ -65,6 +67,7 @@ public:
     bool contains(const T& data) const;
     bool isEmpty() const;
     int getSize() const;
+    void getAllElements(std::vector<T>& elements) const;
 };
 
 // Template implementation (must be in header file)
@@ -80,6 +83,20 @@ void AVLTree<T, Compare>::clear(Node* node) {
     clear(node->left);
     clear(node->right);
     delete node;
+}
+
+template <typename T, typename Compare>
+void AVLTree<T, Compare>::getAllElements(std::vector<T>& elements) const {
+    getAllElementsHelper(root, elements);
+}
+
+template <typename T, typename Compare>
+void AVLTree<T, Compare>::getAllElementsHelper(Node* node, std::vector<T>& elements) const {
+    if (!node) return;
+
+    getAllElementsHelper(node->left, elements);
+    elements.push_back(node->data);
+    getAllElementsHelper(node->right, elements);
 }
 
 template <typename T, typename Compare>
