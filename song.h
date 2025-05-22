@@ -28,12 +28,20 @@ public:
     // קומפרטורים לשימוש בעצי AVL
     class IdCompare {
     public:
-        bool operator()(const Song* s1, const Song* s2) const;
+        bool operator()(const Song* s1, const Song* s2) const {
+            return s1->getId() < s2->getId();
+        }
     };
-    
+
     class PlaysCompare {
     public:
-        bool operator()(const Song* s1, const Song* s2) const;
+        bool operator()(const Song* s1, const Song* s2) const {
+            // השוואה לפי מספר השמעות, במקרה של שוויון - לפי מזהה
+            if (s1->getPlays() == s2->getPlays()) {
+                return s1->getId() < s2->getId();
+            }
+            return s1->getPlays() < s2->getPlays();
+        }
     };
 };
 

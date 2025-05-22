@@ -14,6 +14,9 @@
 #define DSPOTIFY25SPRING_WET1_H_
 
 #include "wet1util.h"
+#include "AvLTree.h"
+#include "song.h"
+#include "PlayList.h"
 
 class DSpotify {
 private:

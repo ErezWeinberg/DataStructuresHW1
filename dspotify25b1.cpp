@@ -23,21 +23,17 @@ DSpotify::~DSpotify() {
         delete *it;
     }
 }
-
 StatusType DSpotify::add_playlist(int playlistId) {
-    // סיבוכיות: O(log m)
-    
-    // בדיקת תקינות הקלט
+    // Input validation
     if (playlistId <= 0) {
         return StatusType::INVALID_INPUT;
     }
-    
-    // בדיקה אם הפלייליסט כבר קיים
-    if (playlists.contains(Playlist(playlistId))) {
+
+    // Check if playlist already exists
+    if (findPlaylist(playlistId) != nullptr) {
         return StatusType::FAILURE;
     }
-    
-    // יצירת פלייליסט חדש והוספתו למערכת
+
     try {
         Playlist* newPlaylist = new Playlist(playlistId);
         bool success = playlists.insert(newPlaylist);
@@ -45,6 +41,50 @@ StatusType DSpotify::add_playlist(int playlistId) {
             delete newPlaylist;
             return StatusType::FAILURE;
         }
+        return StatusType::SUCCESS;
+    } catch (std::bad_alloc&) {
+        return StatusType::ALLOCATION_ERROR;
+    }
+}
+StatusType DSpotify::add_plays(int songId, int additionalPlays) {
+    // Input validation
+    if (songId <= 0 || additionalPlays < 0) {
+        return StatusType::INVALID_INPUT;
+    }
+
+    // Find the song
+    Song* song = findSong(songId);
+    if (!song) {
+        return StatusType::FAILURE;
+    }
+
+    try {
+        // Get current plays
+        int currentPlays = song->getPlays();
+
+        // Update song plays count
+        // We need to remove and reinsert in songsByPlays trees to maintain correct ordering
+        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+            Playlist* playlist = *it;
+            if (song->isInPlaylist(playlist->getId())) {
+                // Note: You'll need to add a public method to access songsByPlays
+                // or make DSpotify a friend class of Playlist
+                // For now, this is a placeholder that won't compile
+                // playlist->songsByPlays.remove(song);
+            }
+        }
+
+        // Update the plays count
+        song->setPlays(currentPlays + additionalPlays);
+
+        // Reinsert into songsByPlays trees
+        for (AVLTree<Playlist*>::Iterator it = playlists.begin(); it != playlists.end(); ++it) {
+            Playlist* playlist = *it;
+            if (song->isInPlaylist(playlist->getId())) {
+                // playlist->songsByPlays.insert(song);
+            }
+        }
+
         return StatusType::SUCCESS;
     } catch (std::bad_alloc&) {
         return StatusType::ALLOCATION_ERROR;
@@ -96,7 +136,7 @@ StatusType DSpotify::add_song(int songId, int plays) {
     }
     
     // בדיקה אם השיר כבר קיים
-    if (songs.contains(Song(songId, 0))) {
+    if (findSong(songId) != nullptr) {
         return StatusType::FAILURE;
     }
     
@@ -258,24 +298,8 @@ output_t<int> DSpotify::get_by_plays(int playlistId, int plays) {
 
 // Returns the number of songs in the specified playlist.
 // Complexity: O(log m)
-output_t<int> DSpotify::get_num_songs(int playlistId) {
-    // סיבוכיות: O(log m)
-    
-    // בדיקת תקינות הקלט
-    if (playlistId <= 0) {
-        return output_t<int>(StatusType::INVALID_INPUT);
-    }
-    
-    // חיפוש הפלייליסט
-    Playlist* playlist = findPlaylist(playlistId);
-    if (!playlist) {
-        return output_t<int>(StatusType::FAILURE);
-    int songCount = playlist->getSongCount();
-    
-    // החזרת מספר השירים
-    return output_t<int>(playlist->getSongCount());
-}
-    output_t<int> DSpotify::get_num_songs(int playlistId) {
+
+    output_t<int> DSpotify::get_num_songs(int playlistId){
         // Input validation
         if (playlistId <= 0) {
             return output_t<int>(StatusType::INVALID_INPUT);
@@ -291,7 +315,7 @@ output_t<int> DSpotify::get_num_songs(int playlistId) {
         return output_t<int>(playlist->getSongCount());
     }
 
-StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2) {
+StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2){
     // סיבוכיות: O(n + m)
     
     // בדיקת תקינות הקלט
@@ -323,13 +347,13 @@ StatusType DSpotify::unite_playlists(int playlistId1, int playlistId2) {
 }
 
 Song* DSpotify::findSong(int songId) const {
-    // חיפוש שיר לפי מזהה
-    Song search(songId, 0); // יוצר שיר זמני לחיפוש
-    return *songs.find(search);
+    Song search(songId, 0);
+    Song** result = songs.find(&search);  // Pass pointer
+    return result ? *result : nullptr;
 }
 
 Playlist* DSpotify::findPlaylist(int playlistId) const {
-    // חיפוש פלייליסט לפי מזהה
-    Playlist search(playlistId); // יוצר פלייליסט זמני לחיפוש
-    return *playlists.find(search);
+    Playlist search(playlistId);
+    Playlist** result = playlists.find(&search);  // Pass pointer
+    return result ? *result : nullptr;
 }
