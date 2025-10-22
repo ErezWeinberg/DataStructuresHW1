@@ -1,0 +1,21 @@
+# Compiled binaries
+*.out
+*.exe
+*.o
+
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# Test result files
+tests/*.res
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+my_output.txt
+output.txt
